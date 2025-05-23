@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн Магазин - Продукти</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        .product-list { list-style: none; padding: 0; }
+        .product-item { border: 1px solid #ddd; margin-bottom: 10px; padding: 15px; border-radius: 5px; }
+        .product-item h2 { margin-top: 0; }
+        .product-item p { margin-bottom: 5px; }
+        .loading, .error { text-align: center; font-size: 1.2em; padding: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Список Продуктів</h1>
+    <div id="productListContainer">
+        <p class="loading">Завантаження продуктів...</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productListContainer = document.getElementById('productListContainer');
+
+            async function fetchProducts() {
+                try {
+                    // Робимо запит до нашого API ендпоінту для отримання продуктів
+                    const response = await fetch('http://localhost:3000/api/products');
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const products = await response.json();
+
+                    if (products.length === 0) {
+                        productListContainer.innerHTML = '<p class="loading">Продуктів не знайдено.</p>';
+                        return;
+                    }
+
+                    let उत्पादHtml = '<ul class="product-list">'; // Використовуємо productHtml для уникнення помилки з українською 'р'
+                    products.forEach(product => {
+                        उत्पादHtml += `
+                            <li class="product-item">
+                                <h2>${product.name}</h2>
+                                <p><strong>Опис:</strong> ${product.description}</p>
+                                <p><strong>Ціна:</strong> ${product.price.toFixed(2)} грн</p>
+                                <p><strong>На складі:</strong> ${product.stockQuantity} шт.</p>
+                            </li>
+                        `;
+                    });
+                    उत्पादHtml += '</ul>';
+                    productListContainer.innerHTML = उत्पादHtml;
+
+                } catch (error) {
+                    console.error('Помилка завантаження продуктів:', error);
+                    productListContainer.innerHTML = `<p class="error">Не вдалося завантажити продукти. Помилка: ${error.message}</p>`;
+                }
+            }
+
+            fetchProducts();
+        });
+    </script>
+</body>
+</html>
